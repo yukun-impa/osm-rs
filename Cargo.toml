@@ -6,3 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+xml-rs = "0.8.4"
+petgraph = "0.6.2"
+queues = "1.0.2"
+map_3d = "0.1.5"
+plotters = "0.3.4"
