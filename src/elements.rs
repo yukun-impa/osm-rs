@@ -36,8 +36,40 @@ pub struct Way {
     pub nodes: Vec<usize>,
     pub tags: Vec<Tag>
 }
+
 impl Way {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
+        Way {
+            id: 0 as usize,
+            version: 0 as usize,
+            timestamp: String::new(),
+            changeset: 0 as usize,
+            uid: 0 as usize,
+            user: String::new(),
+            nodes: Vec::<usize>::new(),
+            tags: Vec::<Tag>::new(),
+        }
+    }
+
+    pub fn with_attributes(attributes: Vec<OwnedAttribute>) -> Self {
+        let way = Way::new();
+
+        for elem in attributes {
+            match &elem.name {
+                "id" => relation.id = elem.value.parse::<usize>().unwrap(),
+                "version" => relation.version = elem.value.parse::<usize>().unwrap(),
+                "timestamp" => relation.timestamp = elem.value,
+                "changeset" => relation.changeset = elem.value.parse::<usize>().unwrap(),
+                "uid" => relation.uid = elem.value.parse::<usize>().unwrap(),
+                "user" => relation.user = elem.value
+            }
+        }
+
+        way 
+
+    }
+
+    pub fn add_tag(&self, attributes: Vec<OwnedAttribute>) -> _ {
         todo!()
     }
 }
@@ -65,8 +97,39 @@ pub struct Relation {
     pub members: Vec<Member>,
     pub tags: Vec<Tag>
 }
+
 impl Relation {
-    pub(crate) fn new() -> Self {
+    
+    pub fn new() -> Self {
+        Relation {
+            id: 0 as usize,
+            version: 0 as usize,
+            timestamp: String::new(),
+            changeset: 0 as usize,
+            uid: 0 as usize,
+            user: String::new(),
+            members: Vec::<Member>::new(),
+            tags: Vec::<Tag>::new(),
+        }
+    }
+
+    pub fn with_attributes(attributes: Vec<OwnedAttribute>) -> Self {
+        let relation = Relation::new();
+
+        for elem in attributes {
+            match &elem.name {
+                "id" => relation.id = elem.value.parse::<usize>().unwrap(),
+                "version" => relation.version = elem.value.parse::<usize>().unwrap(),
+                "timestamp" => relation.timestamp = elem.value,
+                "changeset" => relation.changeset = elem.value.parse::<usize>().unwrap(),
+                "uid" => relation.uid = elem.value.parse::<usize>().unwrap(),
+                "user" => relation.user = elem.value
+            }
+        }
+
+        relation
+    }
+    pub fn add_tag(&self, attributes: Vec<OwnedAttribute>) {
         todo!()
     }
 }
@@ -100,31 +163,37 @@ impl Hash for Node {
 impl Node {
     pub fn new() -> Self {
         Node {
-            id: todo!(),
-            lat: todo!(),
-            lon: todo!(),
-            version: todo!(),
-            timestamp: todo!(),
-            changeset: todo!(),
-            uid: todo!(),
-            user: todo!(),
-            tags: todo!(),
+            id: 0 as usize,
+            lat: 0.0,
+            lon: 0.0,
+            version: 0 as usize,
+            timestamp: String::new(),
+            changeset: 0 as usize,
+            uid: 0 as usize,
+            user: String::new,
+            tags: Vec::<Tag>::new(),
         }
     }
 
-    pub fn read(&mut self, name: OwnedName, attributes: Vec<xml::attribute::OwnedAttribute>) {
+    pub fn with_attributes(attributes: Vec<OwnedAttribute>) -> Self {
+        let mut node = Node::new();
         for elem in attributes {
             match &elem.name {
-                "id" => self.id = elem.value.parse::<usize>().unwrap(),
-                "lat" => self.lat = elem.value.parse::<f64>().unwrap(),
-                "lon" => self.lon = elem.value.parse::<f64>().unwrap(),
-                "version" => self.version = elem.value.parse::<usize>().unwrap(),
-                "timestamp" => self.timestamp = elem.value,
-                "changeset" => self.changeset = elem.value.parse::<usize>().unwrap(),
-                "uid" => self.uid = elem.value.parse::<usize>().unwrap(),
-                "user" => self.user = elem.value
+                "id" => node.id = elem.value.parse::<usize>().unwrap(),
+                "lat" => node.lat = elem.value.parse::<f64>().unwrap(),
+                "lon" => node.lon = elem.value.parse::<f64>().unwrap(),
+                "version" => node.version = elem.value.parse::<usize>().unwrap(),
+                "timestamp" => node.timestamp = elem.value,
+                "changeset" => node.changeset = elem.value.parse::<usize>().unwrap(),
+                "uid" => node.uid = elem.value.parse::<usize>().unwrap(),
+                "user" => node.user = elem.value
             }
         }
+        node
+    }
+
+    pub fn add_tag(&mut self, attributes: Vec<OwnedAttribute>) {
+        todo!()
     }
 }
 

@@ -42,7 +42,8 @@ impl OSM {
                 Ok(XmlEvent::StartElement {
                     name, atrributes, ..
                 }) if &name.local_name == "node" => {
-                    node.read(name, attributes);
+                    depth = OsmElement::Node;
+                    node = Node::with_attributes(attributes);
                 }
 
                 Ok(XmlEvent::EndElement {
@@ -55,37 +56,47 @@ impl OSM {
                 Ok(XmlEvent::StartElement {
                     name, atrributes, ..
                 }) if &name.local_name == "way" => {
+                    depth = OsmElement::Way;
+                    way = Way::with_attributes(attributes);
 
                 }
 
                 Ok(XmlEvent::EndElement {
                     name, atrributes, ..
                 }) if &name.local_name == "way" => {
-
+                    osm.ways_handler(&way);
                 }
+
                 Ok(XmlEvent::StartElement {
                     name, atrributes, ..
                 }) if &name.local_name == "relation" => {
+                    depth = OsmElement::Relation;
+                    relation = Relation::with_attributes(attributes);
                 }
+
                 Ok(XmlEvent::EndElement {
                     name, atrributes, ..
                 }) if &name.local_name == "relation" => {
+                    osm.relations_handler(&relation);
                 }
+
                 Ok(XmlEvent::StartElement {
                     name, attributes, ..
                 }) if &name.local_name == "tag" => {
                     match depth {
-                        Node => {},
-                        Way => {},
-                        Relation => {},
+                        Node => {node.add_tag(attributes);},
+                        Way => {way.add_tag(attributes);},
+                        Relation => {relation.add_tag(attributes)},
                     }
 
                 }
+
                 Ok(XmlEvent::StartElement {
                     name, attributes, ..
                 }) if &name.local_name == "member" => {
-
+                    member.read(attributes);
                 }
+                Err(e) => panic!("Error: {}", e),
                 _ => {}
             }
         }
@@ -118,10 +129,10 @@ impl OSM {
     }
 
     fn ways_handler(&mut self, way: &Way) {
-
+        self.ways.push(way.clone());
     }
 
-    fn relations_handler(&mut self, name: OwnedName, atrributes: Vec<OwnedAttribute>, depth: OsmElement) {
-
+    fn relations_handler(&mut self, relation:&Relation) {
+        self.relations.push(relation.clone());
     }
 }
