@@ -1,4 +1,6 @@
 use std::hash::{Hash, Hasher};
+use xml::name::OwnedName;
+use xml::attribute::OwnedAttribute;
 
 pub struct Tag {
     key: String,
@@ -25,7 +27,7 @@ impl Bbox {
 
 #[derive(Debug, Clone, Default)]
 pub struct Way {
-    pub id: usize
+    pub id: usize,
     pub version: usize,
     pub timestamp: String,
     pub changeset: usize,
@@ -33,6 +35,11 @@ pub struct Way {
     pub user: String,
     pub nodes: Vec<usize>,
     pub tags: Vec<Tag>
+}
+impl Way {
+    pub(crate) fn new() -> Self {
+        todo!()
+    }
 }
 
 #[derive(Debug, Copy, Clone, Default)]
@@ -42,7 +49,7 @@ pub struct Node {
     pub lon: f64,
     pub version: usize,
     pub timestamp: String,
-    pub changeset: usize
+    pub changeset: usize,
     pub uid: usize,
     pub user: String,
     pub tags: Vec<Tag>
@@ -58,6 +65,11 @@ pub struct Relation {
     pub members: Vec<Member>,
     pub tags: Vec<Tag>
 }
+impl Relation {
+    pub(crate) fn new() -> Self {
+        todo!()
+    }
+}
 
 pub struct Member {
     pub member_type: OsmElement,
@@ -70,6 +82,7 @@ enum OsmElement {
     Way,
     Relation
 }
+
 impl PartialEq for Node {
     fn eq(&self, other: &Self) -> bool {
         self.node_id == other.node_id
@@ -85,11 +98,32 @@ impl Hash for Node {
 }
 
 impl Node {
-    pub fn new(id: usize, longitude: f64, latitude: f64) -> Self {
+    pub fn new() -> Self {
         Node {
-            node_id: id,
-            longitude,
-            latitude,
+            id: todo!(),
+            lat: todo!(),
+            lon: todo!(),
+            version: todo!(),
+            timestamp: todo!(),
+            changeset: todo!(),
+            uid: todo!(),
+            user: todo!(),
+            tags: todo!(),
+        }
+    }
+
+    pub fn read(&mut self, name: OwnedName, attributes: Vec<xml::attribute::OwnedAttribute>) {
+        for elem in attributes {
+            match &elem.name {
+                "id" => self.id = elem.value.parse::<usize>().unwrap(),
+                "lat" => self.lat = elem.value.parse::<f64>().unwrap(),
+                "lon" => self.lon = elem.value.parse::<f64>().unwrap(),
+                "version" => self.version = elem.value.parse::<usize>().unwrap(),
+                "timestamp" => self.timestamp = elem.value,
+                "changeset" => self.changeset = elem.value.parse::<usize>().unwrap(),
+                "uid" => self.uid = elem.value.parse::<usize>().unwrap(),
+                "user" => self.user = elem.value
+            }
         }
     }
 }
