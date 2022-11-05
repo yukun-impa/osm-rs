@@ -5,6 +5,7 @@ use std::str::FromStr;
 use xml::reader::{EventReader, XmlEvent};
 use xml::name::{OwnedName, OwnedAttribute};
 use crate::elements::{Tag, Bbox, Node, Way, Relation, Member};
+use filter::Filter;
 pub struct OSM {
     bbox: Bbox,
     nodes: Vec<Node>,
@@ -134,5 +135,9 @@ impl OSM {
 
     fn relations_handler(&mut self, relation:&Relation) {
         self.relations.push(relation.clone());
+    }
+
+    fn filter(&mut self, filter: &Filter) {
+
     }
 }

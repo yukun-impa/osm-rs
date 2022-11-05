@@ -1,5 +1,6 @@
 mod osmparse;
 mod elements;
+mod filter;
 pub fn add(left: usize, right: usize) -> usize {
     left + right
 }

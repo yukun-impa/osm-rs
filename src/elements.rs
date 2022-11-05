@@ -140,6 +140,30 @@ pub struct Member {
     pub role: String,
 }
 
+impl Member {
+    fn new() -> Self {
+        Member { member_type: OsmElement::Node, ref_id: 0 as usize, role: String::new() }
+    }
+
+    fn with_attributes(attributes: Vec<OwnedAttribute>) -> Self {
+        let member = Member::new();
+
+        for elem in attributes {
+            match &elem.name {
+                "type" => {match &elem.value {
+                    "node" => member.member_type = OsmElement::Node,
+                    "way" => member.member_type = OsmElement::Way,
+                    "relation" => member.member_type = OsmElement::Relation,
+                }}
+                "ref" => member.ref_id = elem.value.parse::<usize>().unwrap(),
+                "role" => member.role = elem.value,
+
+            }
+        }
+
+        member
+    }
+}
 enum OsmElement {
     Node,
     Way,
