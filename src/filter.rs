@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
-type Parseresult = (BBox, Vec<Node>, Vec<Way>);
-use elements::{Node, Way};
+use crate::elements::{Bbox, Node, Way, NetworkType};
 use std::fs::File;
 use std::io::BufReader;
 use std::str::FromStr;
@@ -11,19 +10,19 @@ use xml::reader::XmlEvent;
 pub struct Filter {
     network_type: NetworkType,
     tags_contain: HashSet<String>,
-    tags_exclude: HashMap<String, Vec<String>>,
+    tags_values_exclude: HashMap<String, Vec<String>>,
 }
 
 impl NetworkType {
     pub fn get_filter(&self) -> Filter {
         let mut tags_contain = HashSet::<String>::new();
-        let mut tags_exclude = HashMap::<String, Vec<String>>::new();
-        tags_exclude.insert("access".to_string(), vec!["private".to_string()]);
+        let mut tags_values_exclude = HashMap::<String, Vec<String>>::new();
+        tags_values_exclude.insert("access".to_string(), vec!["private".to_string()]);
         match *self {
             NetworkType::Walk => {
                 tags_contain.insert("highway".to_string());
-                tags_exclude.insert("area".to_string(), vec!["yes".to_string()]);
-                tags_exclude.insert(
+                tags_values_exclude.insert("area".to_string(), vec!["yes".to_string()]);
+                tags_values_exclude.insert(
                     "highway".to_string(),
                     vec![
                         "abandoned".to_string(),
@@ -38,8 +37,8 @@ impl NetworkType {
                         "raceway".to_string(),
                     ],
                 );
-                tags_exclude.insert("foot".to_string(), vec!["no".to_string()]);
-                tags_exclude.insert("service".to_string(), vec!["private".to_string()]);
+                tags_values_exclude.insert("foot".to_string(), vec!["no".to_string()]);
+                tags_values_exclude.insert("service".to_string(), vec!["private".to_string()]);
             }
             NetworkType::Drive => {}
 
@@ -48,7 +47,7 @@ impl NetworkType {
         Filter {
             network_type: *self,
             tags_contain,
-            tags_exclude,
+            tags_values_exclude,
         }
     }
 }

@@ -2,6 +2,7 @@ use std::hash::{Hash, Hasher};
 use xml::name::OwnedName;
 use xml::attribute::OwnedAttribute;
 
+#[derive(Debug, Clone)]
 pub struct Tag {
     key: String,
     value: String,
@@ -15,7 +16,7 @@ pub struct Bbox {
 }
 
 impl Bbox {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Bbox {
             left: 0.0,
             bottom: 0.0,
@@ -52,16 +53,17 @@ impl Way {
     }
 
     pub fn with_attributes(attributes: Vec<OwnedAttribute>) -> Self {
-        let way = Way::new();
+        let mut way = Way::new();
 
         for elem in attributes {
-            match &elem.name {
-                "id" => relation.id = elem.value.parse::<usize>().unwrap(),
-                "version" => relation.version = elem.value.parse::<usize>().unwrap(),
-                "timestamp" => relation.timestamp = elem.value,
-                "changeset" => relation.changeset = elem.value.parse::<usize>().unwrap(),
-                "uid" => relation.uid = elem.value.parse::<usize>().unwrap(),
-                "user" => relation.user = elem.value
+            match &*elem.name.local_name {
+                "id" => way.id = elem.value.parse::<usize>().unwrap(),
+                "version" => way.version = elem.value.parse::<usize>().unwrap(),
+                "timestamp" => way.timestamp = elem.value,
+                "changeset" => way.changeset = elem.value.parse::<usize>().unwrap(),
+                "uid" => way.uid = elem.value.parse::<usize>().unwrap(),
+                "user" => way.user = elem.value,
+                _ => {}
             }
         }
 
@@ -69,12 +71,12 @@ impl Way {
 
     }
 
-    pub fn add_tag(&self, attributes: Vec<OwnedAttribute>) -> _ {
+    pub fn add_tag(&mut self, attributes: Vec<OwnedAttribute>) {
         todo!()
     }
 }
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Node {
     pub id: usize,
     pub lat: f64,
@@ -87,6 +89,7 @@ pub struct Node {
     pub tags: Vec<Tag>
 }
 
+#[derive(Debug, Clone)]
 pub struct Relation {
     pub id: usize,
     pub version: usize,
@@ -114,16 +117,17 @@ impl Relation {
     }
 
     pub fn with_attributes(attributes: Vec<OwnedAttribute>) -> Self {
-        let relation = Relation::new();
+        let mut relation = Relation::new();
 
         for elem in attributes {
-            match &elem.name {
+            match &*elem.name.local_name {
                 "id" => relation.id = elem.value.parse::<usize>().unwrap(),
                 "version" => relation.version = elem.value.parse::<usize>().unwrap(),
                 "timestamp" => relation.timestamp = elem.value,
                 "changeset" => relation.changeset = elem.value.parse::<usize>().unwrap(),
                 "uid" => relation.uid = elem.value.parse::<usize>().unwrap(),
-                "user" => relation.user = elem.value
+                "user" => relation.user = elem.value,
+                _ => {}
             }
         }
 
@@ -134,6 +138,7 @@ impl Relation {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct Member {
     pub member_type: OsmElement,
     pub ref_id: usize,
@@ -141,30 +146,32 @@ pub struct Member {
 }
 
 impl Member {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Member { member_type: OsmElement::Node, ref_id: 0 as usize, role: String::new() }
     }
 
-    fn with_attributes(attributes: Vec<OwnedAttribute>) -> Self {
-        let member = Member::new();
+    pub fn with_attributes(attributes: Vec<OwnedAttribute>) -> Self {
+        let mut member = Member::new();
 
         for elem in attributes {
-            match &elem.name {
-                "type" => {match &elem.value {
+            match &*elem.name.local_name {
+                "type" => {match &*elem.value {
                     "node" => member.member_type = OsmElement::Node,
                     "way" => member.member_type = OsmElement::Way,
                     "relation" => member.member_type = OsmElement::Relation,
+                    _ => {}
                 }}
                 "ref" => member.ref_id = elem.value.parse::<usize>().unwrap(),
                 "role" => member.role = elem.value,
-
+                _ => {}
             }
         }
 
         member
     }
 }
-enum OsmElement {
+#[derive(Debug, Clone)]
+pub enum OsmElement {
     Node,
     Way,
     Relation
@@ -172,7 +179,7 @@ enum OsmElement {
 
 impl PartialEq for Node {
     fn eq(&self, other: &Self) -> bool {
-        self.node_id == other.node_id
+        self.id == other.id
     }
 }
 
@@ -180,7 +187,7 @@ impl Eq for Node {}
 
 impl Hash for Node {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.node_id.hash(state);
+        self.id.hash(state);
     }
 }
 
@@ -194,7 +201,7 @@ impl Node {
             timestamp: String::new(),
             changeset: 0 as usize,
             uid: 0 as usize,
-            user: String::new,
+            user: String::new(),
             tags: Vec::<Tag>::new(),
         }
     }
@@ -202,7 +209,7 @@ impl Node {
     pub fn with_attributes(attributes: Vec<OwnedAttribute>) -> Self {
         let mut node = Node::new();
         for elem in attributes {
-            match &elem.name {
+            match &*elem.name.local_name {
                 "id" => node.id = elem.value.parse::<usize>().unwrap(),
                 "lat" => node.lat = elem.value.parse::<f64>().unwrap(),
                 "lon" => node.lon = elem.value.parse::<f64>().unwrap(),
@@ -210,7 +217,8 @@ impl Node {
                 "timestamp" => node.timestamp = elem.value,
                 "changeset" => node.changeset = elem.value.parse::<usize>().unwrap(),
                 "uid" => node.uid = elem.value.parse::<usize>().unwrap(),
-                "user" => node.user = elem.value
+                "user" => node.user = elem.value,
+                _ => {}
             }
         }
         node
@@ -238,4 +246,14 @@ impl Link {
             length_m,
         }
     }
+}
+
+#[derive(Copy, Clone)]
+pub enum NetworkType {
+    Walk,
+    Bike,
+    Drive,
+    DriveService,
+    AllPrivate,
+    All,
 }

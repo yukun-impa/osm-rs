@@ -3,9 +3,10 @@ use std::fs::File;
 use std::io::BufReader;
 use std::str::FromStr;
 use xml::reader::{EventReader, XmlEvent};
-use xml::name::{OwnedName, OwnedAttribute};
-use crate::elements::{Tag, Bbox, Node, Way, Relation, Member};
-use filter::Filter;
+use xml::name::OwnedName;
+use xml::attribute::OwnedAttribute;
+use crate::elements::{Tag, Bbox, Node, Way, Relation, Member, OsmElement, NetworkType};
+use crate::filter::*;
 pub struct OSM {
     bbox: Bbox,
     nodes: Vec<Node>,
@@ -14,20 +15,25 @@ pub struct OSM {
 }
 
 impl OSM {
-    fn new() -> Self {
+    pub fn new() -> Self {
         OSM {
             bbox: Bbox::new(),
             nodes: Vec::<Node>::new(),
             ways: Vec::<Way>::new(),
-            relations: Vec::Relation::new(),
+            relations: Vec::<Relation>::new(),
         }
     }
 
-    pub fn parse(reader: EventReader) -> Result<Self, ()> {
+    pub fn parse(path: &str) -> Result<Self, ()> {
+        let fileread = File::open(path).unwrap();
+        let fileread = BufReader::new(fileread);
+        let  reader= EventReader::new(fileread);
+
         let mut osm = OSM::new();
         let mut depth = OsmElement::Node;
         let mut node = Node::new();
         let mut way = Way::new();
+        let mut member = Member::new();
         let mut relation = Relation::new();
 
 
@@ -36,26 +42,26 @@ impl OSM {
                 Ok(XmlEvent::StartElement {
                     name, attributes, ..
                 }) if &name.local_name == "bounds" => {
-                    osm.bounds_handler(name, atrributes);
+                    osm.bounds_handler(name, attributes);
                 }
 
 
                 Ok(XmlEvent::StartElement {
-                    name, atrributes, ..
+                    name, attributes, ..
                 }) if &name.local_name == "node" => {
                     depth = OsmElement::Node;
                     node = Node::with_attributes(attributes);
                 }
 
                 Ok(XmlEvent::EndElement {
-                    name, atrributes, ..
+                    name, ..
                 }) if &name.local_name == "node" => {
                     osm.nodes_handler(&node);
 
                 }
 
                 Ok(XmlEvent::StartElement {
-                    name, atrributes, ..
+                    name, attributes, ..
                 }) if &name.local_name == "way" => {
                     depth = OsmElement::Way;
                     way = Way::with_attributes(attributes);
@@ -63,20 +69,20 @@ impl OSM {
                 }
 
                 Ok(XmlEvent::EndElement {
-                    name, atrributes, ..
+                    name, ..
                 }) if &name.local_name == "way" => {
                     osm.ways_handler(&way);
                 }
 
                 Ok(XmlEvent::StartElement {
-                    name, atrributes, ..
+                    name, attributes, ..
                 }) if &name.local_name == "relation" => {
                     depth = OsmElement::Relation;
                     relation = Relation::with_attributes(attributes);
                 }
 
                 Ok(XmlEvent::EndElement {
-                    name, atrributes, ..
+                    name, ..
                 }) if &name.local_name == "relation" => {
                     osm.relations_handler(&relation);
                 }
@@ -84,10 +90,10 @@ impl OSM {
                 Ok(XmlEvent::StartElement {
                     name, attributes, ..
                 }) if &name.local_name == "tag" => {
-                    match depth {
-                        Node => {node.add_tag(attributes);},
-                        Way => {way.add_tag(attributes);},
-                        Relation => {relation.add_tag(attributes)},
+                    match &depth {
+                        &OsmElement::Node => {node.add_tag(attributes);},
+                        &OsmElement::Way => {way.add_tag(attributes);},
+                        &OsmElement::Relation => {relation.add_tag(attributes)},
                     }
 
                 }
@@ -95,7 +101,7 @@ impl OSM {
                 Ok(XmlEvent::StartElement {
                     name, attributes, ..
                 }) if &name.local_name == "member" => {
-                    member.read(attributes);
+                    member = Member::with_attributes(attributes);
                 }
                 Err(e) => panic!("Error: {}", e),
                 _ => {}
@@ -107,20 +113,20 @@ impl OSM {
     fn bounds_handler(&mut self, name: OwnedName, atrributes: Vec<OwnedAttribute>) {
 
         for elem in atrributes {
-            if &e.name.local_name == "minlon" {
-                self.bbox.left = e.value.parse::<f64>().unwrap();
+            if &elem.name.local_name == "minlon" {
+                self.bbox.left = elem.value.parse::<f64>().unwrap();
             }
 
-            if &e.name.local_name == "minlat" {
-                self.bbox.bottom = e.value.parse::<f64>().unwrap();
+            if &elem.name.local_name == "minlat" {
+                self.bbox.bottom = elem.value.parse::<f64>().unwrap();
             }
 
-            if &e.name.local_name == "maxlon" {
-                self.bbox.right = e.value.parse::<f64>().unwrap();
+            if &elem.name.local_name == "maxlon" {
+                self.bbox.right = elem.value.parse::<f64>().unwrap();
             }
 
-            if &e.name.local_name == "maxlat" {
-                self.bbox.top = e.value.parse::<f64>().unwrap();
+            if &elem.name.local_name == "maxlat" {
+                self.bbox.top = elem.value.parse::<f64>().unwrap();
             }
         }
     }
@@ -137,7 +143,8 @@ impl OSM {
         self.relations.push(relation.clone());
     }
 
-    fn filter(&mut self, filter: &Filter) {
+    fn filter(&mut self, networktype: &NetworkType) {
+        todo!();
 
     }
 }
