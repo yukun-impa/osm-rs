@@ -101,7 +101,7 @@ impl OSM {
                 Ok(XmlEvent::StartElement {
                     name, attributes, ..
                 }) if &name.local_name == "member" => {
-                    member = Member::with_attributes(attributes);
+                    relation.add_member(attributes);
                 }
                 Err(e) => panic!("Error: {}", e),
                 _ => {}

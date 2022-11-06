@@ -9,6 +9,23 @@ pub struct Tag {
     key: String,
     value: String,
 }
+
+impl Tag{
+    pub fn new() -> Self {
+        Tag {
+            key: String::new(),
+            value: String::new(),
+        }
+    }
+
+    pub fn with_attributes(attributes: &Vec<OwnedAttribute>) -> Self {
+        Tag {
+            key: attributes[0].value.clone(),
+            value: attributes[1].value.clone(),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Bbox {
     pub left: f64,
@@ -74,7 +91,8 @@ impl Way {
     }
 
     pub fn add_tag(&mut self, attributes: Vec<OwnedAttribute>) {
-        todo!()
+        let tag = Tag::with_attributes(&attributes);
+        self.tags.push(tag);
     }
 
     pub fn tag_valid(&self, filter: &Filter) -> bool {
@@ -139,8 +157,15 @@ impl Relation {
 
         relation
     }
-    pub fn add_tag(&self, attributes: Vec<OwnedAttribute>) {
-        todo!()
+
+    pub fn add_tag(&mut self, attributes: Vec<OwnedAttribute>) {
+        let tag = Tag::with_attributes(&attributes);
+        self.tags.push(tag);
+    }
+
+    pub fn add_member(&mut self, attributes: Vec<OwnedAttribute>){
+        let member = Member::with_attributes(attributes);
+        self.members.push(member);
     }
 }
 
@@ -231,8 +256,10 @@ impl Node {
     }
 
     pub fn add_tag(&mut self, attributes: Vec<OwnedAttribute>) {
-        todo!()
+        let tag = Tag::with_attributes(&attributes);
+        self.tags.push(tag);
     }
+
 }
 
 #[derive(Debug, Default, Clone, Copy)]
