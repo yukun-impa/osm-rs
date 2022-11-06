@@ -2,6 +2,8 @@ use std::hash::{Hash, Hasher};
 use xml::name::OwnedName;
 use xml::attribute::OwnedAttribute;
 
+use crate::filter::Filter;
+
 #[derive(Debug, Clone)]
 pub struct Tag {
     key: String,
@@ -72,6 +74,10 @@ impl Way {
     }
 
     pub fn add_tag(&mut self, attributes: Vec<OwnedAttribute>) {
+        todo!()
+    }
+
+    pub fn tag_valid(&self, filter: &Filter) -> bool {
         todo!()
     }
 }

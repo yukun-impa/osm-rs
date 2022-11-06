@@ -9,7 +9,6 @@ use xml::reader::XmlEvent;
 
 pub struct Filter {
     network_type: NetworkType,
-    tags_contain: HashSet<String>,
     tags_values_exclude: HashMap<String, Vec<String>>,
 }
 
@@ -20,7 +19,6 @@ impl NetworkType {
         tags_values_exclude.insert("access".to_string(), vec!["private".to_string()]);
         match *self {
             NetworkType::Walk => {
-                tags_contain.insert("highway".to_string());
                 tags_values_exclude.insert("area".to_string(), vec!["yes".to_string()]);
                 tags_values_exclude.insert(
                     "highway".to_string(),
@@ -46,7 +44,6 @@ impl NetworkType {
         }
         Filter {
             network_type: *self,
-            tags_contain,
             tags_values_exclude,
         }
     }

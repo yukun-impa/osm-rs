@@ -6,7 +6,7 @@ use xml::reader::{EventReader, XmlEvent};
 use xml::name::OwnedName;
 use xml::attribute::OwnedAttribute;
 use crate::elements::{Tag, Bbox, Node, Way, Relation, Member, OsmElement, NetworkType};
-use crate::filter::*;
+
 pub struct OSM {
     bbox: Bbox,
     nodes: Vec<Node>,
@@ -143,8 +143,12 @@ impl OSM {
         self.relations.push(relation.clone());
     }
 
-    fn filter(&mut self, networktype: &NetworkType) {
-        todo!();
-
+    fn filter_ways(&mut self, networktype: &NetworkType) {
+        let filter = networktype.get_filter();
+        self.ways = self.ways.iter()
+            .filter(|&way| way.tag_valid(&filter))
+            .cloned()
+            .collect();
     }
+
 }
