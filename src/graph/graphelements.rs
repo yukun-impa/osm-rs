@@ -1,6 +1,7 @@
-use crate::osmelements::{Node as OSMNode, Way};
+use crate::osmelements::{Node as OSMNode, Way, OsmElement};
 use petgraph::graph::NodeIndex;
 use std::hash::{Hash, Hasher};
+use map_3d::distance;
 
 #[derive(Debug, Clone, Default, Copy)]
 pub struct Node {
@@ -46,19 +47,35 @@ impl Hash for Node {
 #[derive(Debug, Clone, Default, Copy)]
 pub struct Link {
     pub id: usize,
-    pub from: NodeIndex,
-    pub to: NodeIndex,
+    pub from: usize,
+    pub to: usize,
     pub length: f64,
 }
 
 impl Link {
-    pub fn new() {
+    pub fn new() -> Self {
         todo!()
     }
 
-    pub fn from_way(way: &Way) -> Vec<Self> {
-        let one_way = way.is_one_way();
-        todo!()
+    pub fn with_attributes(id: usize, from: usize, to: usize, length: f64) -> Self {
+        Link {
+            id,
+            from,
+            to,
+            length,
+        }
+    }
+
+    pub fn from_way(way: &Way, nodes: &Vec<OSMNode>) -> Vec<Self> {
+        let mut links = Vec::<Self>::new();
+        for i in 0..way.nodes.len() - 1{
+            let from = nodes.iter().find(|&node| node.id == way.nodes[i]).unwrap();
+            let to= nodes.iter().find(|&node| node.id == way.nodes[i + 1]).unwrap();
+            let distance = distance((from.lat, from.lon), (to.lat, to.lon));
+            let link = Link::with_attributes(way.id, from.id, to.id, distance);
+            links.push(link)
+        }
+        links
     }
 
 }

@@ -4,26 +4,33 @@ use crate::graph::graphelements::Node as GraphNode;
 use crate::graph::graphelements::Link;
 use petgraph::graph::NodeIndex;
 use petgraph::graph::Graph;
-use petgraph::stable_graph::GraphIndex;
+use petgraph::graph::GraphIndex;
 use crate::osmparse::OSM;
 use std::collections::HashMap;
 use std::hash::Hash;
 use map_3d::distance;
 
 
-pub fn build_graph(osm: &OSM) -> Result<Graph<GraphNode, Link>, i32> {
-    let mut graph = Graph::<GraphNode, Link>::with_capacity(osm.nodes.len(), 5 * osm.ways.len());
-    let mut node2index = HashMap::<GraphNode, NodeIndex> ::new();
+pub fn build_graph(osm: &OSM) -> Result<Graph<GraphNode, f64>, i32> {
+    let mut graph = Graph::<GraphNode, f64>::with_capacity(osm.nodes.len(), 5 * osm.ways.len());
+    let mut nodeid2index = HashMap::<usize, NodeIndex> ::new();
     for node in &osm.nodes {
         let graphnode = GraphNode::from_osmnode(&node);
-        node2index.insert(graphnode, graph.add_node(graphnode));
+        nodeid2index.insert(graphnode.id, graph.add_node(graphnode));
     }
 
     for way in &osm.ways {
-        for link in &Link::from_way(way) {
-            //todo fixed link: from and link: to
-            graph.add_edge(link.from, link.to, *link);
+        let one_way = way.is_one_way();
+        for link in &Link::from_way(way, &osm.nodes) {
+            let from_index = nodeid2index[&link.from];
+            let to_index = nodeid2index[&link.to];
+            if one_way {
+                graph.add_edge(from_index, to_index, link.length);
+            } else {
+                graph.add_edge(from_index, to_index, link.length);
+                graph.add_edge(to_index, from_index, link.length);
+            }
         }
     }
-    Err(-1)
+    Ok(graph)
 }
