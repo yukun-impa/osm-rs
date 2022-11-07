@@ -1,6 +1,7 @@
-mod osmparse;
-mod elements;
-mod filter;
+pub mod osmparse;
+pub mod osmelements;
+pub mod filter;
+pub mod graph;
 pub fn add(left: usize, right: usize) -> usize {
     left + right
 }

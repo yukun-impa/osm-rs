@@ -5,13 +5,13 @@ use std::str::FromStr;
 use xml::reader::{EventReader, XmlEvent};
 use xml::name::OwnedName;
 use xml::attribute::OwnedAttribute;
-use crate::elements::{Tag, Bbox, Node, Way, Relation, Member, OsmElement, NetworkType};
+use crate::osmelements::{Tag, Bbox, Node, Way, Relation, Member, OsmElement, NetworkType};
 
 pub struct OSM {
-    bbox: Bbox,
-    nodes: Vec<Node>,
-    ways: Vec<Way>,
-    relations: Vec<Relation>
+    pub bbox: Bbox,
+    pub nodes: Vec<Node>,
+    pub ways: Vec<Way>,
+    pub relations: Vec<Relation>
 }
 
 impl OSM {
@@ -144,9 +144,9 @@ impl OSM {
     }
 
     fn filter_ways(&mut self, networktype: &NetworkType) {
-        let filter = networktype.get_filter();
+        let mut filter = networktype.get_filter();
         self.ways = self.ways.iter()
-            .filter(|&way| way.tag_valid(&filter))
+            .filter(|&way| way.tag_valid(&mut filter))
             .cloned()
             .collect();
     }

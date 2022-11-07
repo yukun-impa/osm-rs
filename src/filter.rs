@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
-use crate::elements::{Bbox, Node, Way, NetworkType};
+use crate::osmelements::{Bbox, Node, Way, NetworkType};
 use std::fs::File;
 use std::io::BufReader;
 use std::str::FromStr;
@@ -8,8 +8,8 @@ use xml::reader::EventReader;
 use xml::reader::XmlEvent;
 
 pub struct Filter {
-    network_type: NetworkType,
-    tags_values_exclude: HashMap<String, Vec<String>>,
+    pub network_type: NetworkType,
+    pub tags_values_exclude: HashMap<String, Vec<String>>,
 }
 
 impl NetworkType {

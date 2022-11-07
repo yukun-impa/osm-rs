@@ -1,6 +1,7 @@
 use std::hash::{Hash, Hasher};
 use xml::name::OwnedName;
 use xml::attribute::OwnedAttribute;
+use std::collections::hash_map::Entry::{Occupied, Vacant};
 
 use crate::filter::Filter;
 
@@ -95,7 +96,14 @@ impl Way {
         self.tags.push(tag);
     }
 
-    pub fn tag_valid(&self, filter: &Filter) -> bool {
+    pub fn tag_valid(&self, filter: &mut Filter) -> bool {
+        let mut contain_highways = false;
+        for tag in &self.tags {
+        }
+        contain_highways
+    }
+
+    pub fn is_one_way(&self) -> bool {
         todo!()
     }
 }
@@ -201,6 +209,7 @@ impl Member {
         member
     }
 }
+
 #[derive(Debug, Clone)]
 pub enum OsmElement {
     Node,
@@ -262,6 +271,16 @@ impl Node {
 
 }
 
+#[derive(Copy, Clone)]
+pub enum NetworkType {
+    Walk,
+    Bike,
+    Drive,
+    DriveService,
+    AllPrivate,
+    All,
+}
+
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Link {
     pub link_id: usize,
@@ -279,14 +298,4 @@ impl Link {
             length_m,
         }
     }
-}
-
-#[derive(Copy, Clone)]
-pub enum NetworkType {
-    Walk,
-    Bike,
-    Drive,
-    DriveService,
-    AllPrivate,
-    All,
 }
