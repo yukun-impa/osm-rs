@@ -1,8 +1,6 @@
 use crate::reader::osmelements::{Bbox, Member, NetworkType, Node, OsmElement, Relation, Tag, Way};
-use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::BufReader;
-use std::str::FromStr;
 use xml::attribute::OwnedAttribute;
 use xml::name::OwnedName;
 use xml::reader::{EventReader, XmlEvent};
