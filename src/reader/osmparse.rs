@@ -95,7 +95,7 @@ impl OSM {
                 _ => {}
             }
         }
-        Err(())
+        Ok(osm)
     }
 
     fn bounds_handler(&mut self, name: OwnedName, atrributes: Vec<OwnedAttribute>) {
