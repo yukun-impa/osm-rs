@@ -1,7 +1,6 @@
-use crate::osmelements::{Node as OSMNode, Way, OsmElement};
-use petgraph::graph::NodeIndex;
-use std::hash::{Hash, Hasher};
+use crate::reader::osmelements::{Node as OSMNode, Way};
 use map_3d::distance;
+use std::hash::{Hash, Hasher};
 
 #[derive(Debug, Clone, Default, Copy)]
 pub struct Node {
@@ -9,7 +8,6 @@ pub struct Node {
     pub lat: f64,
     pub lon: f64,
 }
-
 
 impl Node {
     pub fn new() -> Self {
@@ -28,7 +26,6 @@ impl Node {
         }
     }
 }
-
 
 impl PartialEq for Node {
     fn eq(&self, other: &Self) -> bool {
@@ -68,15 +65,16 @@ impl Link {
 
     pub fn from_way(way: &Way, nodes: &Vec<OSMNode>) -> Vec<Self> {
         let mut links = Vec::<Self>::new();
-        for i in 0..way.nodes.len() - 1{
+        for i in 0..way.nodes.len() - 1 {
             let from = nodes.iter().find(|&node| node.id == way.nodes[i]).unwrap();
-            let to= nodes.iter().find(|&node| node.id == way.nodes[i + 1]).unwrap();
+            let to = nodes
+                .iter()
+                .find(|&node| node.id == way.nodes[i + 1])
+                .unwrap();
             let distance = distance((from.lat, from.lon), (to.lat, to.lon));
             let link = Link::with_attributes(way.id, from.id, to.id, distance);
             links.push(link)
         }
         links
     }
-
 }
-

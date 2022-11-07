@@ -1,17 +1,17 @@
+use crate::reader::osmelements::{Bbox, Member, NetworkType, Node, OsmElement, Relation, Tag, Way};
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::BufReader;
 use std::str::FromStr;
-use xml::reader::{EventReader, XmlEvent};
-use xml::name::OwnedName;
 use xml::attribute::OwnedAttribute;
-use crate::osmelements::{Tag, Bbox, Node, Way, Relation, Member, OsmElement, NetworkType};
+use xml::name::OwnedName;
+use xml::reader::{EventReader, XmlEvent};
 
 pub struct OSM {
     pub bbox: Bbox,
     pub nodes: Vec<Node>,
     pub ways: Vec<Way>,
-    pub relations: Vec<Relation>
+    pub relations: Vec<Relation>,
 }
 
 impl OSM {
@@ -27,7 +27,7 @@ impl OSM {
     pub fn parse(path: &str) -> Result<Self, ()> {
         let fileread = File::open(path).unwrap();
         let fileread = BufReader::new(fileread);
-        let  reader= EventReader::new(fileread);
+        let reader = EventReader::new(fileread);
 
         let mut osm = OSM::new();
         let mut depth = OsmElement::Node;
@@ -35,7 +35,6 @@ impl OSM {
         let mut way = Way::new();
         let mut member = Member::new();
         let mut relation = Relation::new();
-
 
         for elem in reader {
             match elem {
@@ -45,7 +44,6 @@ impl OSM {
                     osm.bounds_handler(name, attributes);
                 }
 
-
                 Ok(XmlEvent::StartElement {
                     name, attributes, ..
                 }) if &name.local_name == "node" => {
@@ -53,11 +51,8 @@ impl OSM {
                     node = Node::with_attributes(attributes);
                 }
 
-                Ok(XmlEvent::EndElement {
-                    name, ..
-                }) if &name.local_name == "node" => {
+                Ok(XmlEvent::EndElement { name, .. }) if &name.local_name == "node" => {
                     osm.nodes_handler(&node);
-
                 }
 
                 Ok(XmlEvent::StartElement {
@@ -65,12 +60,9 @@ impl OSM {
                 }) if &name.local_name == "way" => {
                     depth = OsmElement::Way;
                     way = Way::with_attributes(attributes);
-
                 }
 
-                Ok(XmlEvent::EndElement {
-                    name, ..
-                }) if &name.local_name == "way" => {
+                Ok(XmlEvent::EndElement { name, .. }) if &name.local_name == "way" => {
                     osm.ways_handler(&way);
                 }
 
@@ -81,22 +73,21 @@ impl OSM {
                     relation = Relation::with_attributes(attributes);
                 }
 
-                Ok(XmlEvent::EndElement {
-                    name, ..
-                }) if &name.local_name == "relation" => {
+                Ok(XmlEvent::EndElement { name, .. }) if &name.local_name == "relation" => {
                     osm.relations_handler(&relation);
                 }
 
                 Ok(XmlEvent::StartElement {
                     name, attributes, ..
-                }) if &name.local_name == "tag" => {
-                    match &depth {
-                        &OsmElement::Node => {node.add_tag(attributes);},
-                        &OsmElement::Way => {way.add_tag(attributes);},
-                        &OsmElement::Relation => {relation.add_tag(attributes)},
+                }) if &name.local_name == "tag" => match &depth {
+                    &OsmElement::Node => {
+                        node.add_tag(attributes);
                     }
-
-                }
+                    &OsmElement::Way => {
+                        way.add_tag(attributes);
+                    }
+                    &OsmElement::Relation => relation.add_tag(attributes),
+                },
 
                 Ok(XmlEvent::StartElement {
                     name, attributes, ..
@@ -111,7 +102,6 @@ impl OSM {
     }
 
     fn bounds_handler(&mut self, name: OwnedName, atrributes: Vec<OwnedAttribute>) {
-
         for elem in atrributes {
             if &elem.name.local_name == "minlon" {
                 self.bbox.left = elem.value.parse::<f64>().unwrap();
@@ -139,16 +129,17 @@ impl OSM {
         self.ways.push(way.clone());
     }
 
-    fn relations_handler(&mut self, relation:&Relation) {
+    fn relations_handler(&mut self, relation: &Relation) {
         self.relations.push(relation.clone());
     }
 
     fn filter_ways(&mut self, networktype: &NetworkType) {
         let mut filter = networktype.get_filter();
-        self.ways = self.ways.iter()
+        self.ways = self
+            .ways
+            .iter()
             .filter(|&way| way.tag_valid(&mut filter))
             .cloned()
             .collect();
     }
-
 }

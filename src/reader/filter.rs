@@ -1,11 +1,6 @@
+use crate::reader::osmelements::NetworkType;
 use std::collections::HashMap;
-use std::collections::HashSet;
-use crate::osmelements::{Bbox, Node, Way, NetworkType};
-use std::fs::File;
-use std::io::BufReader;
 use std::str::FromStr;
-use xml::reader::EventReader;
-use xml::reader::XmlEvent;
 
 pub struct Filter {
     pub network_type: NetworkType,
@@ -14,7 +9,6 @@ pub struct Filter {
 
 impl NetworkType {
     pub fn get_filter(&self) -> Filter {
-        let mut tags_contain = HashSet::<String>::new();
         let mut tags_values_exclude = HashMap::<String, Vec<String>>::new();
         tags_values_exclude.insert("access".to_string(), vec!["private".to_string()]);
         match *self {

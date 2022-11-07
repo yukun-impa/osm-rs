@@ -1,11 +1,8 @@
-pub mod osmparse;
-pub mod osmelements;
-pub mod filter;
 pub mod graph;
+pub mod reader;
 pub fn add(left: usize, right: usize) -> usize {
     left + right
 }
-
 
 #[cfg(test)]
 mod tests {

@@ -1,52 +1,52 @@
-use crate::graph::graphelements::{Link, Node};
+use crate::graph::graphelements::Node;
 use map_3d::distance;
 use petgraph::graph::Graph;
 use petgraph::graph::NodeIndex;
-use std::collections::HashMap;
 pub trait Measure: Debug + PartialOrd + Add<Self, Output = Self> + Default + Clone {}
 use std::cmp::{Eq, PartialEq};
 use std::fmt::Debug;
 use std::ops::Add;
-use std::path;
-pub trait Router {
-    fn find_path(
-        &self,
-        source: (f64, f64,),
-        target: (f64, f64),
-    ) -> Option<RouteResult>;
-    
+pub trait Router<W>
+where
+    W: Measure + Copy,
+{
+    fn find_path(&self, source: NodeIndex, target: NodeIndex) -> Option<RouteResult<W>>;
 
+    fn find_node_id(&self, id: usize) -> NodeIndex;
     //fn find_node(coordinate: (f64, f64)) -> NodeIndex;
 }
 
 #[derive(Debug)]
-pub struct RouteResult {
-    pub routecost: f64,
+pub struct RouteResult<W>
+where
+    W: Measure + Copy,
+{
+    pub routecost: W,
     pub route: Vec<Node>,
 }
 
-impl PartialEq for RouteResult {
+impl<W> PartialEq for RouteResult<W>
+where
+    W: Measure + Copy,
+{
     fn eq(&self, other: &Self) -> bool {
         self.route == other.route
     }
 }
 
-impl Eq for RouteResult {}
+impl<W> Eq for RouteResult<W> where W: Measure + Copy {}
 
-impl Router for Graph<Node, f64> {
-    fn find_path(
-            &self,
-            source: (f64, f64,),
-            target: (f64, f64),
-        ) -> Option<RouteResult> {
-        let source_index = find_node(source);
-        let target_index = find_node(target);
+impl<W> Router<W> for Graph<Node, W>
+where
+    W: Measure + Copy,
+{
+    fn find_path(&self, source: NodeIndex, target: NodeIndex) -> Option<RouteResult<W>> {
         let path_cost = petgraph::algo::astar(
             &self,
-            source_index,
-            |finish| finish == target_index,
+            source,
+            |finish| finish == target,
             |e| *e.weight(),
-            |_| 0.0,
+            |_| W::default(),
         );
         if path_cost.is_none() {
             return None;
@@ -59,7 +59,38 @@ impl Router for Graph<Node, f64> {
         Some(RouteResult { routecost, route })
     }
 
+    fn find_node_id(&self, id: usize) -> NodeIndex
+    where
+        W: Measure + Copy,
+    {
+        self.node_indices()
+            .find(|&n| self.node_weight(n).unwrap().id == id)
+            .unwrap()
+    }
 }
-fn find_node(coordinate: (f64, f64)) -> NodeIndex {
-    todo!()
+
+pub fn find_node<W>(graph: &Graph<Node, W>, coordinate: (f64, f64)) -> NodeIndex
+where
+    W: Measure + Copy,
+{
+    graph
+        .node_indices()
+        .min_by(|&x, &y| {
+            distance(
+                (
+                    graph.node_weight(x).unwrap().lat,
+                    graph.node_weight(x).unwrap().lon,
+                ),
+                coordinate,
+            )
+            .partial_cmp(&distance(
+                (
+                    graph.node_weight(y).unwrap().lat,
+                    graph.node_weight(y).unwrap().lon,
+                ),
+                coordinate,
+            ))
+            .unwrap()
+        })
+        .unwrap()
 }

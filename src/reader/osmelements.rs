@@ -1,17 +1,14 @@
-use std::hash::{Hash, Hasher};
-use xml::name::OwnedName;
 use xml::attribute::OwnedAttribute;
-use std::collections::hash_map::Entry::{Occupied, Vacant};
 
-use crate::filter::Filter;
+use crate::reader::filter::Filter;
 
 #[derive(Debug, Clone)]
 pub struct Tag {
-    key: String,
-    value: String,
+    pub key: String,
+    pub value: String,
 }
 
-impl Tag{
+impl Tag {
     pub fn new() -> Self {
         Tag {
             key: String::new(),
@@ -55,7 +52,7 @@ pub struct Way {
     pub uid: usize,
     pub user: String,
     pub nodes: Vec<usize>,
-    pub tags: Vec<Tag>
+    pub tags: Vec<Tag>,
 }
 
 impl Way {
@@ -87,8 +84,7 @@ impl Way {
             }
         }
 
-        way 
-
+        way
     }
 
     pub fn add_tag(&mut self, attributes: Vec<OwnedAttribute>) {
@@ -98,8 +94,7 @@ impl Way {
 
     pub fn tag_valid(&self, filter: &mut Filter) -> bool {
         let mut contain_highways = false;
-        for tag in &self.tags {
-        }
+        for tag in &self.tags {}
         contain_highways
     }
 
@@ -118,7 +113,7 @@ pub struct Node {
     pub changeset: usize,
     pub uid: usize,
     pub user: String,
-    pub tags: Vec<Tag>
+    pub tags: Vec<Tag>,
 }
 
 #[derive(Debug, Clone)]
@@ -130,11 +125,10 @@ pub struct Relation {
     pub uid: usize,
     pub user: String,
     pub members: Vec<Member>,
-    pub tags: Vec<Tag>
+    pub tags: Vec<Tag>,
 }
 
 impl Relation {
-    
     pub fn new() -> Self {
         Relation {
             id: 0 as usize,
@@ -171,7 +165,7 @@ impl Relation {
         self.tags.push(tag);
     }
 
-    pub fn add_member(&mut self, attributes: Vec<OwnedAttribute>){
+    pub fn add_member(&mut self, attributes: Vec<OwnedAttribute>) {
         let member = Member::with_attributes(attributes);
         self.members.push(member);
     }
@@ -186,7 +180,11 @@ pub struct Member {
 
 impl Member {
     pub fn new() -> Self {
-        Member { member_type: OsmElement::Node, ref_id: 0 as usize, role: String::new() }
+        Member {
+            member_type: OsmElement::Node,
+            ref_id: 0 as usize,
+            role: String::new(),
+        }
     }
 
     pub fn with_attributes(attributes: Vec<OwnedAttribute>) -> Self {
@@ -194,12 +192,12 @@ impl Member {
 
         for elem in attributes {
             match &*elem.name.local_name {
-                "type" => {match &*elem.value {
+                "type" => match &*elem.value {
                     "node" => member.member_type = OsmElement::Node,
                     "way" => member.member_type = OsmElement::Way,
                     "relation" => member.member_type = OsmElement::Relation,
                     _ => {}
-                }}
+                },
                 "ref" => member.ref_id = elem.value.parse::<usize>().unwrap(),
                 "role" => member.role = elem.value,
                 _ => {}
@@ -214,7 +212,7 @@ impl Member {
 pub enum OsmElement {
     Node,
     Way,
-    Relation
+    Relation,
 }
 
 impl Node {
@@ -254,7 +252,6 @@ impl Node {
         let tag = Tag::with_attributes(&attributes);
         self.tags.push(tag);
     }
-
 }
 
 #[derive(Copy, Clone)]
