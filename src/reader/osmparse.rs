@@ -1,4 +1,4 @@
-use crate::reader::osmelements::{Bbox, Member, NetworkType, Node, OsmElement, Relation, Tag, Way};
+use crate::reader::osmelements::{Bbox, NetworkType, Node, OsmElement, Relation, Tag, Way};
 use std::fs::File;
 use std::io::BufReader;
 use xml::attribute::OwnedAttribute;
@@ -31,7 +31,6 @@ impl OSM {
         let mut depth = OsmElement::Node;
         let mut node = Node::new();
         let mut way = Way::new();
-        let mut member = Member::new();
         let mut relation = Relation::new();
 
         for elem in reader {

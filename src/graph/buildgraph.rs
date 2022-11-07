@@ -1,11 +1,12 @@
 use crate::graph::graphelements::Link;
 use crate::graph::graphelements::Node as GraphNode;
+use crate::reader::osmelements::NetworkType;
 use crate::reader::osmparse::OSM;
 use petgraph::graph::Graph;
 use petgraph::graph::NodeIndex;
 use std::collections::HashMap;
 
-pub fn build_graph(osm: &OSM) -> Result<Graph<GraphNode, f64>, i32> {
+pub fn build_graph(osm: &OSM, network: NetworkType) -> Result<Graph<GraphNode, f64>, i32> {
     let mut graph = Graph::<GraphNode, f64>::with_capacity(osm.nodes.len(), 5 * osm.ways.len());
     let mut nodeid2index = HashMap::<usize, NodeIndex>::new();
     for node in &osm.nodes {
@@ -14,7 +15,7 @@ pub fn build_graph(osm: &OSM) -> Result<Graph<GraphNode, f64>, i32> {
     }
 
     for way in &osm.ways {
-        let one_way = way.is_one_way();
+        let one_way = way.is_one_way() || network == NetworkType::Walk;
         for link in &Link::from_way(way, &osm.nodes) {
             let from_index = nodeid2index[&link.from];
             let to_index = nodeid2index[&link.to];

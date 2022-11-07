@@ -94,12 +94,27 @@ impl Way {
 
     pub fn tag_valid(&self, filter: &mut Filter) -> bool {
         let mut contain_highways = false;
-        for tag in &self.tags {}
+        for tag in &self.tags {
+            if &*tag.key == "highway" {
+                contain_highways = true;
+            }
+
+            if let Some(val_to_exclude) = filter.tags_values_exclude.get(&tag.key) {
+                if val_to_exclude.contains(&tag.value) {
+                    return false;
+                }
+            }
+        }
         contain_highways
     }
 
     pub fn is_one_way(&self) -> bool {
-        todo!()
+        for tag in &self.tags {
+            if &*tag.key == "oneway" && &*tag.value == "yes" {
+                return true;
+            }
+        }
+        false
     }
 }
 
@@ -254,7 +269,7 @@ impl Node {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub enum NetworkType {
     Walk,
     Bike,
