@@ -1,10 +1,10 @@
-use crate::reader::osmelements::{Bbox, NetworkType, Node, OsmElement, Relation, Tag, Way};
+use crate::reader::osmelements::{Bbox, NetworkType, Node, OsmElement, Relation, Way};
 use std::fs::File;
 use std::io::BufReader;
 use xml::attribute::OwnedAttribute;
-use xml::name::OwnedName;
 use xml::reader::{EventReader, XmlEvent};
 
+#[derive(Debug)]
 pub struct OSM {
     pub bbox: Bbox,
     pub nodes: Vec<Node>,
@@ -38,7 +38,7 @@ impl OSM {
                 Ok(XmlEvent::StartElement {
                     name, attributes, ..
                 }) if &name.local_name == "bounds" => {
-                    osm.bounds_handler(name, attributes);
+                    osm.bounds_handler(attributes);
                 }
 
                 Ok(XmlEvent::StartElement {
@@ -57,6 +57,12 @@ impl OSM {
                 }) if &name.local_name == "way" => {
                     depth = OsmElement::Way;
                     way = Way::with_attributes(attributes);
+                }
+
+                Ok(XmlEvent::StartElement {
+                    name, attributes, ..
+                }) if &name.local_name == "nd" => {
+                    way.add_node(attributes)
                 }
 
                 Ok(XmlEvent::EndElement { name, .. }) if &name.local_name == "way" => {
@@ -98,7 +104,7 @@ impl OSM {
         Ok(osm)
     }
 
-    fn bounds_handler(&mut self, name: OwnedName, atrributes: Vec<OwnedAttribute>) {
+    fn bounds_handler(&mut self, atrributes: Vec<OwnedAttribute>) {
         for elem in atrributes {
             if &elem.name.local_name == "minlon" {
                 self.bbox.left = elem.value.parse::<f64>().unwrap();
@@ -130,7 +136,7 @@ impl OSM {
         self.relations.push(relation.clone());
     }
 
-    fn filter_ways(&mut self, networktype: &NetworkType) {
+    pub fn filter_ways(&mut self, networktype: &NetworkType) {
         let mut filter = networktype.get_filter();
         self.ways = self
             .ways

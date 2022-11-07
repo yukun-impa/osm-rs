@@ -86,6 +86,10 @@ impl Way {
 
         way
     }
+    
+    pub fn add_node(&mut self, attributes: Vec<OwnedAttribute>) {
+        self.nodes.push(attributes[0].value.parse::<usize>().unwrap());
+    }
 
     pub fn add_tag(&mut self, attributes: Vec<OwnedAttribute>) {
         let tag = Tag::with_attributes(&attributes);
