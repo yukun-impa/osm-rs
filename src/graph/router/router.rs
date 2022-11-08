@@ -14,7 +14,7 @@ where
 
     fn find_path_node_id(&self, source: usize, target: usize) -> Option<RouteResult<W>>;
 
-    fn find_node_idex(&self, id: usize) -> NodeIndex;
+    fn find_node_index(&self, id: usize) -> NodeIndex;
     //fn find_node(coordinate: (f64, f64)) -> NodeIndex;
 }
 
@@ -62,12 +62,12 @@ where
     }
 
     fn find_path_node_id(&self, source: usize, target: usize) -> Option<RouteResult<W>> {
-        let source = self.find_node_idex(source);
-        let target = self.find_node_idex(target);
+        let source = self.find_node_index(source);
+        let target = self.find_node_index(target);
         self.find_path_index(source, target)
     }
 
-    fn find_node_idex(&self, id: usize) -> NodeIndex
+    fn find_node_index(&self, id: usize) -> NodeIndex
     where
         W: Debug + PartialOrd + Add<W, Output = W> + Default + Clone + Copy,
     {
