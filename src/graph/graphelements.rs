@@ -66,6 +66,10 @@ impl Link {
     pub fn from_way(way: &Way, nodes: &Vec<OSMNode>) -> Vec<Self> {
         let mut links = Vec::<Self>::new();
         for i in 0..way.nodes.len() - 1 {
+            //todo: fixed case whn way.nodes.len() == 1
+            if way.nodes.len() == 0 {
+                break;
+            }
             let from = nodes.iter().find(|&node| node.id == way.nodes[i]).unwrap();
             let to = nodes
                 .iter()

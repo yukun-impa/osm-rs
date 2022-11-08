@@ -15,7 +15,8 @@ pub fn build_graph(osm: &OSM, network: NetworkType) -> Result<Graph<GraphNode, f
     }
 
     for way in &osm.ways {
-        let one_way = way.is_one_way() || network == NetworkType::Walk;
+        let one_way = network != NetworkType::Walk && way.is_one_way();
+
         for link in &Link::from_way(way, &osm.nodes) {
             let from_index = nodeid2index[&link.from];
             let to_index = nodeid2index[&link.to];
