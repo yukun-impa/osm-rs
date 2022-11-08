@@ -17,6 +17,7 @@ where
         size: (u32, u32),
     ) -> Result<(), Box<dyn std::error::Error>>;
 }
+
 impl<W> Draw<W> for Graph<Node, W>
 where
     W: Debug + PartialOrd + Add<W, Output = W> + Default + Clone + Copy,

@@ -5,8 +5,9 @@
 - [X] Save/Load local `.osm` files.
 - [X] Filter data by network type
     - [X] Walk
-    - [ ] Drive
-    - [ ] All
+    - [X] Drive
+    - [ ] Bike
+    - [X] All
 - [X] Build graphs from data.
 - [ ] Save graphs to `GraphML` file
 - [ ] Find shortest-path route by:
