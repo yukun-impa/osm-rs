@@ -3,8 +3,8 @@
 ## Features
 - [ ] Interact with OpenStreetMap's APIs
 - [ ] Save/Load local `.osm` files.
-    -[X] Load
-    -[ ] Save
+    - [X] Load
+    - [ ] Save
 - [X] Filter data by network type
     - [X] Walk
     - [X] Drive
