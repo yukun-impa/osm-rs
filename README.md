@@ -2,7 +2,7 @@
 
 ## Features
 - [ ] Interact with OpenStreetMap's APIs
-- [] Save/Load local `.osm` files.
+- [ ] Save/Load local `.osm` files.
     -[X] Load
     -[ ] Save
 - [X] Filter data by network type
