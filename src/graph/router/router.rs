@@ -14,8 +14,11 @@ where
 
     fn find_path_node_id(&self, source: usize, target: usize) -> Option<RouteResult<W>>;
 
+    fn find_path_node_coor(&self, source: (f64, f64), target: (f64, f64)) -> Option<RouteResult<W>>;
+
     fn find_node_index(&self, id: usize) -> NodeIndex;
-    //fn find_node(coordinate: (f64, f64)) -> NodeIndex;
+
+    fn find_node(&self, coordinate: (f64, f64)) -> NodeIndex;
 }
 
 #[derive(Debug)]
@@ -67,39 +70,44 @@ where
         self.find_path_index(source, target)
     }
 
+    fn find_path_node_coor(&self, source: (f64, f64), target: (f64, f64)) -> Option<RouteResult<W>> {
+        let source = self.find_node(source);
+        let target = self.find_node(target);
+        self.find_path_index(source, target)
+    }
+
     fn find_node_index(&self, id: usize) -> NodeIndex
-    where
-        W: Debug + PartialOrd + Add<W, Output = W> + Default + Clone + Copy,
     {
         //todo: handle the case when node_id is not valid
         self.node_indices()
             .find(|&n| self.node_weight(n).unwrap().id == id)
             .unwrap()
     }
-}
 
-pub fn find_node<W>(graph: &Graph<Node, W>, coordinate: (f64, f64)) -> NodeIndex
-where
-    W: Measure + Copy,
-{
-    graph
-        .node_indices()
-        .min_by(|&x, &y| {
-            distance(
-                (
-                    graph.node_weight(x).unwrap().lat,
-                    graph.node_weight(x).unwrap().lon,
-                ),
-                coordinate,
-            )
-            .partial_cmp(&distance(
-                (
-                    graph.node_weight(y).unwrap().lat,
-                    graph.node_weight(y).unwrap().lon,
-                ),
-                coordinate,
-            ))
+
+    fn find_node(&self, coordinate: (f64, f64)) -> NodeIndex
+    {
+        self
+            .node_indices()
+            .filter(|&n| self.neighbors_undirected(n).count() != 0)
+            .min_by(|&x, &y| {
+                distance(
+                    (
+                        self.node_weight(x).unwrap().lat,
+                        self.node_weight(x).unwrap().lon,
+                    ),
+                    coordinate,
+                )
+                .partial_cmp(&distance(
+                    (
+                        self.node_weight(y).unwrap().lat,
+                        self.node_weight(y).unwrap().lon,
+                    ),
+                    coordinate,
+                ))
+                .unwrap()
+            })
             .unwrap()
-        })
-        .unwrap()
+    }
+
 }
