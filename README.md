@@ -2,6 +2,7 @@
 
 ## Features
 - [ ] Interact with OpenStreetMap's APIs
+    - [X] Download `.osm` file (to fix!)
 - [X] Save/Load local `.osm` files.
     - [X] Load
     - [X] Save (to fix!)

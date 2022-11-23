@@ -61,9 +61,7 @@ impl OSM {
 
                 Ok(XmlEvent::StartElement {
                     name, attributes, ..
-                }) if &name.local_name == "nd" => {
-                    way.add_node(attributes)
-                }
+                }) if &name.local_name == "nd" => way.add_node(attributes),
 
                 Ok(XmlEvent::EndElement { name, .. }) if &name.local_name == "way" => {
                     osm.ways_handler(&way);

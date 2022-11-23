@@ -1,6 +1,6 @@
-use xml::attribute::OwnedAttribute;
-
 use crate::reader::filter::Filter;
+use std::string::ToString;
+use xml::attribute::OwnedAttribute;
 
 #[derive(Debug, Clone)]
 pub struct Tag {
@@ -43,6 +43,14 @@ impl Bbox {
     }
 }
 
+impl ToString for Bbox {
+    fn to_string(&self) -> String {
+        format!(
+            "bbox={},{},{},{}",
+            self.left, self.bottom, self.right, self.top
+        )
+    }
+}
 #[derive(Debug, Clone, Default)]
 pub struct Way {
     pub id: usize,
